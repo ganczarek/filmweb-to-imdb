@@ -18,6 +18,7 @@ class TmdbClient(tmdb: Tmdb) {
       .headOption
       .flatMap(movie => Some(tmdb.moviesService().summary(movie.id, null, null).execute().body()))
       .map(_.imdb_id)
+      .filter(_.startsWith("tt"))
   }
 
 }
