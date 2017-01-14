@@ -6,18 +6,18 @@ import com.omertron.omdbapi.OmdbApi
 import info.ganczarek.model.MovieRate
 import org.slf4j.{Logger, LoggerFactory}
 
-import scalaj.http.{Http, HttpResponse}
 import scala.collection.JavaConverters._
+import scalaj.http.{Http, HttpResponse}
 
 object ImdbClient {
 
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
-  def apply(cookieId: String): ImdbClient = new ImdbClient(cookieId, new OmdbApi())
+  def apply(imdbCookieId: String, tmdbApiKey: String): ImdbClient = new ImdbClient(imdbCookieId, new OmdbApi(), TmdbClient(tmdbApiKey))
 
 }
 
-class ImdbClient(cookieId: String, omdbApi: OmdbApi) {
+class ImdbClient(cookieId: String, omdbApi: OmdbApi, tmdbClient: TmdbClient) {
 
   import ImdbClient._
 
@@ -35,6 +35,7 @@ class ImdbClient(cookieId: String, omdbApi: OmdbApi) {
     Option(omdbApi.search(movieRate.title, movieRate.year).getResults).map(_.asScala).getOrElse(List())
       .map(_.getImdbID)
       .headOption
+      .orElse(tmdbClient.getImdbIdFromTmdb(movieRate))
   }
 
   private def getAuthToken(cookieId: String, imdbId: String): String = {
