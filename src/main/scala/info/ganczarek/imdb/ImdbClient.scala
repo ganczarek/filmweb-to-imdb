@@ -13,6 +13,8 @@ object ImdbClient {
 
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
+  def apply(cookieId: String): ImdbClient = new ImdbClient(cookieId, new OmdbApi())
+
 }
 
 class ImdbClient(cookieId: String, omdbApi: OmdbApi) {
@@ -21,15 +23,23 @@ class ImdbClient(cookieId: String, omdbApi: OmdbApi) {
 
   private val authToken = getAuthToken(cookieId)
 
-  def submitMovieRates(movieRates: Seq[MovieRate]): Unit = {
-    movieRates
-      .flatMap(movieRate => getImdbIdForMovieRate(movieRate) match {
-        case Some(imdbId) => Some((imdbId, movieRate))
-        case None => logger.warn("Failed to find IMDB ID for {}", movieRate); None
-      })
+  def submitMovieRates(movieRates: Seq[MovieRate]): Seq[MovieRate] = {
+    val movieRatesWithImdbId = movieRates
+      .map(movieRate => (getImdbIdForMovieRate(movieRate), movieRate))
+
+    movieRatesWithImdbId.flatMap {
+        case (Some(imdbId), movieRate) => Some((imdbId, movieRate))
+        case (None, movieRate) => logger.warn("Failed to find IMDB ID for {}", movieRate); None
+      }
       .foreach { case (imdbId, movieRate) =>
         submitRating(imdbId, movieRate)
       }
+
+    // return movie rates that were not found in IMDB database
+    movieRatesWithImdbId.flatMap {
+      case (Some(imdbId), movieRate) => None
+      case (None, movieRate) => Some(movieRate)
+    }
   }
 
   def getImdbIdForMovieRate(movieRate: MovieRate): Option[String] = {
