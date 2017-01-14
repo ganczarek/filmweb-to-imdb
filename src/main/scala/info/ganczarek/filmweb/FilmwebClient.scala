@@ -19,15 +19,13 @@ object FilmwebClient {
 class FilmwebClient(login: String, password: String, fa: FilmwebApi) {
   import FilmwebClient._
 
-  def userMovieRates(): Seq[MovieRate]  = {
+  def userMovieRates(): Iterator[MovieRate]  = {
     logger.info("Get from filmweb.pl movie ratings of user {}", login)
     val user = fa.login(login, password)
     // It seems that pagination doesn't work. Therefore, use page 0 and large limit. It worked fine for >800 votes.
     val votes = fa.getUserVotes(user.getId, 0, VOTE_REQUEST_LIMIT).asScala
-    logger.debug("Found {} Filmweb votes", votes.size)
-    val movieRates = votes.flatMap(convertToMovieRate)
-    logger.info("Found {} Filmweb movie rates", movieRates.size)
-    movieRates
+    logger.info("Found {} Filmweb votes", votes.size)
+    votes.toIterator.flatMap(convertToMovieRate)
   }
 
   private def convertToMovieRate(vote: Vote): Option[MovieRate] = {

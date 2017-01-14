@@ -21,25 +21,14 @@ class ImdbClient(cookieId: String, omdbApi: OmdbApi) {
 
   import ImdbClient._
 
-  private val authToken = getAuthToken(cookieId)
-
-  def submitMovieRates(movieRates: Seq[MovieRate]): Seq[MovieRate] = {
+  def submitMovieRates(movieRates: Iterator[MovieRate]): Seq[MovieRate] = {
     val movieRatesWithImdbId = movieRates
       .map(movieRate => (getImdbIdForMovieRate(movieRate), movieRate))
 
     movieRatesWithImdbId.flatMap {
-        case (Some(imdbId), movieRate) => Some((imdbId, movieRate))
-        case (None, movieRate) => logger.warn("Failed to find IMDB ID for {}", movieRate); None
-      }
-      .foreach { case (imdbId, movieRate) =>
-        submitRating(imdbId, movieRate)
-      }
-
-    // return movie rates that were not found in IMDB database
-    movieRatesWithImdbId.flatMap {
-      case (Some(imdbId), movieRate) => None
-      case (None, movieRate) => Some(movieRate)
-    }
+        case (Some(imdbId), movieRate) => submitRating(imdbId, movieRate); None
+        case (None, movieRate) => logger.warn("Failed to find IMDB ID for {}", movieRate); Some(movieRate)
+      }.toSeq
   }
 
   def getImdbIdForMovieRate(movieRate: MovieRate): Option[String] = {
@@ -48,15 +37,16 @@ class ImdbClient(cookieId: String, omdbApi: OmdbApi) {
       .headOption
   }
 
-  private def getAuthToken(cookieId: String): String = {
-    val response = Http("http://www.imdb.com/title/tt3631112/")
+  private def getAuthToken(cookieId: String, imdbId: String): String = {
+    val response = Http(s"http://www.imdb.com/title/$imdbId/")
       .cookie(new HttpCookie("id", cookieId))
       .asString
     "data-auth=\"(.*)\" ".r.findFirstMatchIn(response.body).get.group(1)
   }
 
   private def submitRating(imdbId: String, movieRate: MovieRate): HttpResponse[String] = {
-    logger.info("Submit {}", movieRate)
+    logger.info(s"Submit rate for IMDB id: $imdbId. $movieRate")
+    val authToken = getAuthToken(cookieId, imdbId)
     Http("http://www.imdb.com/ratings/_ajax/title")
       .postForm(Seq(
         "tconst" -> imdbId,
