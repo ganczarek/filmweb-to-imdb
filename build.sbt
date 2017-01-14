@@ -13,6 +13,9 @@ libraryDependencies ++= Seq(
   "commons-codec" % "commons-codec" % "1.10",
   "com.google.code.gson" % "gson" % "2.5",
   "com.google.guava" % "guava" % "19.0",
+  // IMDB API
+  "com.omertron" % "API-OMDB" % "1.2",
+  "org.scalaj" %% "scalaj-http" % "2.3.0",
   // tests
   "org.scalatest" %% "scalatest" % "3.0.1" % "test",
   "org.mockito" % "mockito-all" % "1.10.19" % "test"

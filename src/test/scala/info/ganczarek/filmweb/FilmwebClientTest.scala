@@ -5,12 +5,11 @@ import java.util.Collections
 
 import info.ganczarek.model.MovieRate
 import info.talacha.filmweb.api.FilmwebApi
-import info.talacha.filmweb.connection.FilmwebException
 import info.talacha.filmweb.models.{Film, ItemType, User, Vote}
-import org.scalatest.{FlatSpec, Matchers}
-import org.scalatest.mockito.MockitoSugar
-import org.mockito.Mockito._
 import org.mockito.Matchers._
+import org.mockito.Mockito._
+import org.scalatest.mockito.MockitoSugar
+import org.scalatest.{FlatSpec, Matchers}
 
 import scala.collection.JavaConverters._
 
