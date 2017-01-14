@@ -1,6 +1,6 @@
 package info.ganczarek.filmweb
 
-import info.ganczarek.model.MovieRate
+import info.ganczarek.model.{ItemRate, MovieRate, SeriesRate}
 import info.talacha.filmweb.api.FilmwebApi
 import info.talacha.filmweb.models.{Film, ItemType, Vote}
 import org.slf4j.{Logger, LoggerFactory}
@@ -19,23 +19,26 @@ object FilmwebClient {
 class FilmwebClient(login: String, password: String, fa: FilmwebApi) {
   import FilmwebClient._
 
-  def userMovieRates(): Iterator[MovieRate]  = {
+  def userRates(): Iterator[ItemRate]  = {
     logger.info("Get from filmweb.pl movie ratings of user {}", login)
     val user = fa.login(login, password)
     // It seems that pagination doesn't work. Therefore, use page 0 and large limit. It worked fine for >800 votes.
     val votes = fa.getUserVotes(user.getId, 0, VOTE_REQUEST_LIMIT).asScala
     logger.info("Found {} Filmweb votes", votes.size)
-    votes.toIterator.flatMap(convertToMovieRate)
+    votes.toIterator.flatMap(convertToItemRate)
   }
 
-  private def convertToMovieRate(vote: Vote): Option[MovieRate] = {
+  private def convertToItemRate(vote: Vote): Option[ItemRate] = {
     vote.getType match {
       case ItemType.FILM =>
         val filmData = fa.getFilmData(vote.getItemId)
-        Some(MovieRate(getMovieTitle(filmData), filmData.getYear, vote.getRate))
+        Some(MovieRate(getFilmwebTitle(filmData), filmData.getYear, vote.getRate))
+      case ItemType.SERIES =>
+        val seriesData = fa.getSeriesData(vote.getItemId)
+        Some(SeriesRate(getFilmwebTitle(seriesData), seriesData.getYear, vote.getRate))
       case _ => None
     }
   }
 
-  private def getMovieTitle(film: Film) = Option(film.getTitle).getOrElse(film.getPolishTitle)
+  private def getFilmwebTitle(film: Film) = Option(film.getTitle).getOrElse(film.getPolishTitle)
 }

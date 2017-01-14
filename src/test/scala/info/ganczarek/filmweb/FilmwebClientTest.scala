@@ -3,9 +3,9 @@ package info.ganczarek.filmweb
 import java.util
 import java.util.Collections
 
-import info.ganczarek.model.MovieRate
+import info.ganczarek.model.{MovieRate, SeriesRate}
 import info.talacha.filmweb.api.FilmwebApi
-import info.talacha.filmweb.models.{Film, ItemType, User, Vote}
+import info.talacha.filmweb.models._
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
@@ -31,20 +31,20 @@ class FilmwebClientTest extends FlatSpec with MockitoSugar with Matchers {
     when(filmwebApi.login("testLogin", "incorrectPass")).thenThrow(new RuntimeException("mocked incorrect password exception"))
     val filmwebClient: FilmwebClient = new FilmwebClient("testLogin", "incorrectPass", filmwebApi)
 
-    intercept[RuntimeException] { filmwebClient.userMovieRates() }
+    intercept[RuntimeException] { filmwebClient.userRates() }
   }
 
   it should "return empty movie rate sequence, when no votes" in new ClientWithMockedFilmwebApi {
     when(filmwebApi.getUserVotes(org.mockito.Matchers.eq(userId), anyInt(), anyInt())).thenReturn(Collections.emptyList[Vote]())
 
-    filmwebClient.userMovieRates().toSeq shouldBe Seq()
+    filmwebClient.userRates().toSeq shouldBe Seq()
   }
 
-  it should "ignore votes with type different than a movie" in new ClientWithMockedFilmwebApi {
-    val votes: util.List[Vote] = Seq(vote(ItemType.GAME, 1L, 5), vote(ItemType.SERIES, 2L, 7)).asJava
+  it should "ignore votes with type different than a movie or series" in new ClientWithMockedFilmwebApi {
+    val votes: util.List[Vote] = Seq(vote(ItemType.GAME, 1L, 5), vote(ItemType.GAME, 2L, 7)).asJava
     when(filmwebApi.getUserVotes(org.mockito.Matchers.eq(userId), anyInt(), anyInt())).thenReturn(votes)
 
-    filmwebClient.userMovieRates().toSeq shouldBe Seq()
+    filmwebClient.userRates().toSeq shouldBe Seq()
   }
 
   it should "return movie rates for film votes from Filmweb" in new ClientWithMockedFilmwebApi {
@@ -55,16 +55,27 @@ class FilmwebClientTest extends FlatSpec with MockitoSugar with Matchers {
     private val filmData2 = film("movie 2", 2002)
     when(filmwebApi.getFilmData(2L)).thenReturn(filmData2)
 
-    filmwebClient.userMovieRates().toSeq should contain theSameElementsAs Seq(MovieRate("movie 1", 2001, 10), MovieRate("movie 2", 2002, 3))
+    filmwebClient.userRates().toSeq should contain theSameElementsAs Seq(MovieRate("movie 1", 2001, 10), MovieRate("movie 2", 2002, 3))
   }
 
-  it should "it should return movie rate with Polish title when no Englishther title" in new ClientWithMockedFilmwebApi {
+  it should "return series rates for film votes from Filmweb" in new ClientWithMockedFilmwebApi {
+    private val votes = Seq(vote(ItemType.SERIES, 1L, 10), vote(ItemType.SERIES, 2L, 3)).asJava
+    when(filmwebApi.getUserVotes(org.mockito.Matchers.eq(userId), anyInt(), anyInt())).thenReturn(votes)
+    private val seriesData1 = series("series 1", 2001)
+    when(filmwebApi.getSeriesData(1L)).thenReturn(seriesData1)
+    private val seriesData2 = series("series 2", 2002)
+    when(filmwebApi.getSeriesData(2L)).thenReturn(seriesData2)
+
+    filmwebClient.userRates().toSeq should contain theSameElementsAs Seq(SeriesRate("series 1", 2001, 10), SeriesRate("series 2", 2002, 3))
+  }
+
+  it should "it should return movie rate with Polish title when no English title" in new ClientWithMockedFilmwebApi {
     private val votes = Seq(vote(ItemType.FILM, 1L, 10)).asJava
     when(filmwebApi.getUserVotes(org.mockito.Matchers.eq(userId), anyInt(), anyInt())).thenReturn(votes)
     private val filmData = film(null, "Polish title", 2001)
     when(filmwebApi.getFilmData(1L)).thenReturn(filmData)
 
-    filmwebClient.userMovieRates().toSeq should contain theSameElementsAs Seq(MovieRate("Polish title", 2001, 10))
+    filmwebClient.userRates().toSeq should contain theSameElementsAs Seq(MovieRate("Polish title", 2001, 10))
   }
 
   it should "it should return movie rate with English title when both Polish and English titles available" in new ClientWithMockedFilmwebApi {
@@ -73,7 +84,7 @@ class FilmwebClientTest extends FlatSpec with MockitoSugar with Matchers {
     private val filmData = film("English title", "Polish title", 2001)
     when(filmwebApi.getFilmData(1L)).thenReturn(filmData)
 
-    filmwebClient.userMovieRates().toSeq should contain theSameElementsAs Seq(MovieRate("English title", 2001, 10))
+    filmwebClient.userRates().toSeq should contain theSameElementsAs Seq(MovieRate("English title", 2001, 10))
   }
 
   private def vote(itemType: ItemType, itemId: Long, rate: Int): Vote = {
@@ -94,6 +105,13 @@ class FilmwebClientTest extends FlatSpec with MockitoSugar with Matchers {
     when(film.getTitle).thenReturn(title)
     when(film.getPolishTitle).thenReturn(polishTitle)
     film
+  }
+
+  private def series(title: String, year: Int): Series = {
+    val series = mock[Series]
+    when(series.getYear).thenReturn(year)
+    when(series.getTitle).thenReturn(title)
+    series
   }
 
 }

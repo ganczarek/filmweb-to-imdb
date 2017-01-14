@@ -3,7 +3,7 @@ package info.ganczarek.imdb
 import java.net.HttpCookie
 
 import com.omertron.omdbapi.OmdbApi
-import info.ganczarek.model.MovieRate
+import info.ganczarek.model.{ItemRate, MovieRate}
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.collection.JavaConverters._
@@ -21,9 +21,9 @@ class ImdbClient(cookieId: String, omdbApi: OmdbApi, tmdbClient: TmdbClient) {
 
   import ImdbClient._
 
-  def submitMovieRates(movieRates: Iterator[MovieRate]): Seq[MovieRate] = {
+  def submitMovieRates(movieRates: Iterator[ItemRate]): Seq[ItemRate] = {
     val movieRatesWithImdbId = movieRates
-      .map(movieRate => (getImdbIdForMovieRate(movieRate), movieRate))
+      .map(movieRate => (getImdbIdForItemRate(movieRate), movieRate))
 
     movieRatesWithImdbId.flatMap {
         case (Some(imdbId), movieRate) => submitRating(imdbId, movieRate); None
@@ -31,11 +31,11 @@ class ImdbClient(cookieId: String, omdbApi: OmdbApi, tmdbClient: TmdbClient) {
       }.toSeq
   }
 
-  def getImdbIdForMovieRate(movieRate: MovieRate): Option[String] = {
-    Option(omdbApi.search(movieRate.title, movieRate.year).getResults).map(_.asScala).getOrElse(List())
+  def getImdbIdForItemRate(itemRate: ItemRate): Option[String] = {
+    Option(omdbApi.search(itemRate.title, itemRate.year).getResults).map(_.asScala).getOrElse(List())
       .map(_.getImdbID)
       .headOption
-      .orElse(tmdbClient.getImdbIdFromTmdb(movieRate))
+      .orElse(tmdbClient.getImdbIdFromTmdb(itemRate))
   }
 
   private def getAuthToken(cookieId: String, imdbId: String): String = {
@@ -45,13 +45,13 @@ class ImdbClient(cookieId: String, omdbApi: OmdbApi, tmdbClient: TmdbClient) {
     "data-auth=\"(.*)\" ".r.findFirstMatchIn(response.body).get.group(1)
   }
 
-  private def submitRating(imdbId: String, movieRate: MovieRate): HttpResponse[String] = {
-    logger.info(s"Submit rate for IMDB id: $imdbId. $movieRate")
+  private def submitRating(imdbId: String, itemRate: ItemRate): HttpResponse[String] = {
+    logger.info(s"Submit rate for IMDB id: $imdbId. $itemRate")
     val authToken = getAuthToken(cookieId, imdbId)
     Http("http://www.imdb.com/ratings/_ajax/title")
       .postForm(Seq(
         "tconst" -> imdbId,
-        "rating" -> movieRate.rate.toString,
+        "rating" -> itemRate.rate.toString,
         "auth" -> authToken,
         "tracking_tag" -> "title-maindetails"
       ))

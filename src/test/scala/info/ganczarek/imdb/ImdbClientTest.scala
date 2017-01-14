@@ -27,7 +27,7 @@ class ImdbClientTest extends FlatSpec with MockitoSugar with Matchers {
     private val omdbSearchResults = searchResults(omdbMovieData)
     when(omdbApi.search(movieRate.title, movieRate.year)).thenReturn(omdbSearchResults)
 
-    imdbClient.getImdbIdForMovieRate(movieRate) shouldBe Some(imdbId)
+    imdbClient.getImdbIdForItemRate(movieRate) shouldBe Some(imdbId)
   }
 
   it should "return None for a movie that does not exist in IMDB database" in new ClientWithMockedOmdbApi {
@@ -36,7 +36,7 @@ class ImdbClientTest extends FlatSpec with MockitoSugar with Matchers {
     when(omdbApi.search(movieRate.title, movieRate.year)).thenReturn(omdbSearchResults)
     when(tmdbClient.getImdbIdFromTmdb(movieRate)).thenReturn(None)
 
-    imdbClient.getImdbIdForMovieRate(movieRate) shouldBe None
+    imdbClient.getImdbIdForItemRate(movieRate) shouldBe None
   }
 
   it should "return IMDB id for a first movie that was found in IMDB database" in new ClientWithMockedOmdbApi {
@@ -47,7 +47,7 @@ class ImdbClientTest extends FlatSpec with MockitoSugar with Matchers {
     private val omdbSearchResults = searchResults(omdbMovieData1, omdbMovieData2)
     when(omdbApi.search(movieRate.title, movieRate.year)).thenReturn(omdbSearchResults)
 
-    imdbClient.getImdbIdForMovieRate(movieRate) shouldBe Some(imdbId)
+    imdbClient.getImdbIdForItemRate(movieRate) shouldBe Some(imdbId)
   }
 
   it should "fallback to TMDb, if cannot find IMDB id with OMDb" in new ClientWithMockedOmdbApi {
@@ -57,7 +57,7 @@ class ImdbClientTest extends FlatSpec with MockitoSugar with Matchers {
     when(omdbApi.search(movieRate.title, movieRate.year)).thenReturn(omdbSearchResults)
     when(tmdbClient.getImdbIdFromTmdb(movieRate)).thenReturn(Some(imdbId))
 
-    imdbClient.getImdbIdForMovieRate(movieRate) shouldBe Some(imdbId)
+    imdbClient.getImdbIdForItemRate(movieRate) shouldBe Some(imdbId)
   }
 
   private def searchResults(omdbVideoBasic: OmdbVideoBasic*) = {
