@@ -12,5 +12,8 @@ libraryDependencies ++= Seq(
   // filmweb-api v0.3.3 dependencies
   "commons-codec" % "commons-codec" % "1.10",
   "com.google.code.gson" % "gson" % "2.5",
-  "com.google.guava" % "guava" % "19.0"
+  "com.google.guava" % "guava" % "19.0",
+  // tests
+  "org.scalatest" %% "scalatest" % "3.0.1" % "test",
+  "org.mockito" % "mockito-all" % "1.10.19" % "test"
 )
