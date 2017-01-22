@@ -1,4 +1,4 @@
-name := "imdb-filmweb-sync"
+name := "filmweb-to-imdb"
 
 version := "1.0"
 
