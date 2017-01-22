@@ -5,7 +5,7 @@ version := "1.0"
 scalaVersion := "2.12.1"
 
 libraryDependencies ++= Seq(
-  // Log4j2
+  // SLF4J + Log4j2
   "org.apache.logging.log4j" % "log4j-api" % "2.7",
   "org.apache.logging.log4j" % "log4j-core" % "2.7",
   "org.apache.logging.log4j" % "log4j-slf4j-impl" % "2.7",
