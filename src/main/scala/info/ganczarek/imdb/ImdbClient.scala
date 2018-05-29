@@ -13,7 +13,7 @@ object ImdbClient {
 
   val logger: Logger = LoggerFactory.getLogger(this.getClass)
 
-  def apply(imdbCookieId: String, tmdbApiKey: String): ImdbClient = new ImdbClient(imdbCookieId, new OmdbApi(), TmdbClient(tmdbApiKey))
+  def apply(imdbCookieId: String, tmdbApiKey: String, omdbApiKey: String): ImdbClient = new ImdbClient(imdbCookieId, new OmdbApi(omdbApiKey), TmdbClient(tmdbApiKey))
 
 }
 

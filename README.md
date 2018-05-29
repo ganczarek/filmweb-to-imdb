@@ -25,13 +25,14 @@ Build
       
 and run
       
-    java -jar target/scala-2.12/filmweb-to-imdb-assembly-*.jar $TMDB_API_KEY $IMDB_COOKIE_ID $FILMWEB_LOGIN $FILMWEB_PASSWORD
+    java -jar target/scala-2.12/filmweb-to-imdb-assembly-*.jar $TMDB_API_KEY $IMDB_COOKIE_ID $FILMWEB_LOGIN $FILMWEB_PASSWORD $OMDB_API_KEY
 
 Requirements
 ------------
 - [Filmweb.pl](http://www.filmweb.pl/) account credentials. Logging with Facebook or Google+ accounts is not supported.
 - [IMDb](http://www.imdb.com/) session cookie id. Log into IMDb with your browser and get assigned session cookied id.
 - [TMDb](https://www.themoviedb.org/) API key. Read [FAQ](https://www.themoviedb.org/faq/api) to see how to apply for a key.
+- [OMDb](https://omdbapi.com/) API key. Generate [here](http://omdbapi.com/apikey.aspx).
 
 Limitations
 -----------

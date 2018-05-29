@@ -14,7 +14,7 @@ libraryDependencies ++= Seq(
   "com.google.code.gson" % "gson" % "2.5",
   "com.google.guava" % "guava" % "19.0",
   // IMDb API
-  "com.omertron" % "API-OMDB" % "1.2",
+  "com.omertron" % "API-OMDB" % "1.5",
   "com.uwetrottmann.tmdb2" % "tmdb-java" % "1.5.0",
   "org.scalaj" %% "scalaj-http" % "2.3.0",
   // tests

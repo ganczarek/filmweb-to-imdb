@@ -10,9 +10,10 @@ object CopyFilmwebRatesToImdbApp {
     val imdbCookieId = args(1)
     val filmwebLogin = args(2)
     val filmwebPassword = args(3)
+    val omdbApiKey = args(4)
 
     val filmwebClient = FilmwebClient(filmwebLogin, filmwebPassword)
-    val imdbClient = ImdbClient(imdbCookieId, tmdbApiKey)
+    val imdbClient = ImdbClient(imdbCookieId, tmdbApiKey, omdbApiKey)
 
     val notFoundMovieRates = imdbClient.submitMovieRates(filmwebClient.userRates()).toList
     println("Movies that could not be found in IMDb database:")
