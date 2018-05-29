@@ -8,6 +8,7 @@ import scala.collection.JavaConverters._
 object TmdbClient {
 
   def apply(tmdbApiKey: String): TmdbClient = new TmdbClient(new Tmdb(tmdbApiKey))
+
 }
 
 class TmdbClient(tmdb: Tmdb) {

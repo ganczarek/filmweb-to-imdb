@@ -39,21 +39,26 @@ class ImdbClient(cookieId: String, omdbApi: OmdbApi, tmdbClient: TmdbClient) {
   }
 
   private def getAuthToken(cookieId: String, imdbId: String): String = {
-    val response = Http(s"http://www.imdb.com/title/$imdbId/")
+    val response = Http(s"https://www.imdb.com/title/$imdbId/")
       .cookie(new HttpCookie("id", cookieId))
       .asString
-    "data-auth=\"(.*)\" ".r.findFirstMatchIn(response.body).get.group(1)
+      val auth="data-auth=\"(.*)\" data-tracking-tag".r.findFirstMatchIn(response.body)
+      if ( auth != None ) { auth.get.group(1) }
+      else { "" }
   }
 
   private def submitRating(imdbId: String, itemRate: ItemRate): HttpResponse[String] = {
     logger.info(s"Submit rate for IMDB id: $imdbId. $itemRate")
     val authToken = getAuthToken(cookieId, imdbId)
-    Http("http://www.imdb.com/ratings/_ajax/title")
+    Http("https://www.imdb.com/ratings/_ajax/title")
       .postForm(Seq(
         "tconst" -> imdbId,
         "rating" -> itemRate.rate.toString,
         "auth" -> authToken,
-        "tracking_tag" -> "title-maindetails"
+        "tracking_tag" -> "title-maindetails",
+        "pageId" -> imdbId,
+        "pageType" -> "title",
+        "subpageType" -> "main"
       ))
       .cookie(new HttpCookie("id", cookieId))
       .header("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
