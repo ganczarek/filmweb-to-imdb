@@ -8,6 +8,7 @@ import scala.collection.JavaConverters._
 object TmdbClient {
 
   def apply(tmdbApiKey: String): TmdbClient = new TmdbClient(new Tmdb(tmdbApiKey))
+
 }
 
 class TmdbClient(tmdb: Tmdb) {
@@ -16,7 +17,9 @@ class TmdbClient(tmdb: Tmdb) {
     (itemRate match {
       case movieRate: MovieRate => getImdbIdForMovie(movieRate)
       case seriesRate: SeriesRate => getImdbIdForSeries(seriesRate)
-    }).filter(_.startsWith("tt"))
+    })
+    .filter(_ != null)
+    .filter(_.startsWith("tt"))
   }
 
   private def getImdbIdForMovie(movieRate: MovieRate): Option[String] = {

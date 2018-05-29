@@ -14,7 +14,7 @@ handles better slight variations of the same titles.
 Once IMDb ID of the movie is found, then movie rating is set in IMDb with use of private API. IMDb expects rates ranging
 from 1 to 10. Therefore, Filmweb's 0 rates (watched, but not rated) are being ignored. 
 
-In the end program will list all title ratings from Filmweb for which IMDb IDs could not be found. 
+In the end program will list all title ratings from Filmweb for which IMDb IDs could not be found, as well as those for which it failed to copy ratings for other reasons.
 
 Build and run
 -------------
@@ -25,13 +25,14 @@ Build
       
 and run
       
-    java -jar target/scala-2.12/filmweb-to-imdb-assembly-*.jar $TMDB_API_KEY $IMDB_COOKIE_ID $FILMWEB_LOGIN $FILMWEB_PASSWORD
+    java -jar target/scala-2.12/filmweb-to-imdb-assembly-*.jar $TMDB_API_KEY $IMDB_COOKIE_ID $FILMWEB_LOGIN $FILMWEB_PASSWORD $OMDB_API_KEY
 
 Requirements
 ------------
 - [Filmweb.pl](http://www.filmweb.pl/) account credentials. Logging with Facebook or Google+ accounts is not supported.
 - [IMDb](http://www.imdb.com/) session cookie id. Log into IMDb with your browser and get assigned session cookied id.
 - [TMDb](https://www.themoviedb.org/) API key. Read [FAQ](https://www.themoviedb.org/faq/api) to see how to apply for a key.
+- [OMDb](https://omdbapi.com/) API key. Generate [here](http://omdbapi.com/apikey.aspx).
 
 Limitations
 -----------
@@ -43,4 +44,5 @@ Known Issues
 ------------
 - Release years can differ between Filmweb and IMDb databases; especially for Polish productions. Better heuristic could be
 implemented, but currently these cases are ignored and listed as not found in IMDb.
-- If a movie has a game with a title same as in Filmweb database, then the game might be rated.  
+- If a movie has a game with a title same as in Filmweb database, then the game might be rated.
+- If a movie has multiple IMDb IDs, its rating may not be copied.
