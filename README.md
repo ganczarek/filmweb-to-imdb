@@ -14,7 +14,7 @@ handles better slight variations of the same titles.
 Once IMDb ID of the movie is found, then movie rating is set in IMDb with use of private API. IMDb expects rates ranging
 from 1 to 10. Therefore, Filmweb's 0 rates (watched, but not rated) are being ignored. 
 
-In the end program will list all title ratings from Filmweb for which IMDb IDs could not be found. 
+In the end program will list all title ratings from Filmweb for which IMDb IDs could not be found, as well as those for which it failed to copy ratings for other reasons.
 
 Build and run
 -------------
@@ -44,4 +44,5 @@ Known Issues
 ------------
 - Release years can differ between Filmweb and IMDb databases; especially for Polish productions. Better heuristic could be
 implemented, but currently these cases are ignored and listed as not found in IMDb.
-- If a movie has a game with a title same as in Filmweb database, then the game might be rated.  
+- If a movie has a game with a title same as in Filmweb database, then the game might be rated.
+- If a movie has multiple IMDb IDs, its rating may not be copied.

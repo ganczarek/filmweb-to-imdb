@@ -26,7 +26,15 @@ class ImdbClient(cookieId: String, omdbApi: OmdbApi, tmdbClient: TmdbClient) {
       .map(movieRate => (getImdbIdForItemRate(movieRate), movieRate))
 
     movieRatesWithImdbId.flatMap {
-        case (Some(imdbId), movieRate) => submitRating(imdbId, movieRate); None
+        case (Some(imdbId), movieRate) => (
+        if( getAuthToken(cookieId, imdbId).isEmpty() ) {
+            logger.warn("Failed to fetch auth token for {}", movieRate)
+            Some(movieRate)
+        }
+        else {
+            submitRating(imdbId, movieRate)
+            None
+        })
         case (None, movieRate) => logger.warn("Failed to find IMDB ID for {}", movieRate); Some(movieRate)
       }.toSeq
   }
